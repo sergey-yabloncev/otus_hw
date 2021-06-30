@@ -47,20 +47,23 @@ func Unpack(str string) (string, error) {
 				continue
 			}
 
-			count, _ := strconv.Atoi(string(v))
-
-			// если ноль то удаляем предыдущий символ
-			if count == 0 {
-				prevResult := []rune(result.String())
-				result.Reset()
-				result.WriteString(string(prevResult[:len(prevResult)-1]))
-			} else {
-				result.WriteString(strings.Repeat(string(prevRune), count-1))
-			}
+			repeatSymbol(&result, v, prevRune)
 		} else {
 			result.WriteString(string(v))
 		}
 	}
 
 	return result.String(), nil
+}
+
+func repeatSymbol(result *strings.Builder, v rune, prevRune rune) {
+	count, _ := strconv.Atoi(string(v))
+	// если ноль то удаляем предыдущий символ
+	if count == 0 {
+		prevResult := []rune(result.String())
+		result.Reset()
+		result.WriteString(string(prevResult[:len(prevResult)-1]))
+	} else {
+		result.WriteString(strings.Repeat(string(prevRune), count-1))
+	}
 }
