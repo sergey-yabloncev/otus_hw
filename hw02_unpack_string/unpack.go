@@ -58,7 +58,7 @@ func Unpack(str string) (string, error) {
 	return result.String(), nil
 }
 
-// Повторение руны и запись в результат указанное количество раз -1 (вы читаем ранее добавленную к строке руну)
+// Повторение руны и запись в результат указанное количество раз -1 (вы читаем ранее добавленную к строке руну).
 func repeatSymbol(result *strings.Builder, quantity rune, prevRune rune) {
 	count, _ := strconv.Atoi(string(quantity))
 	// если ноль то удаляем предыдущий символ
