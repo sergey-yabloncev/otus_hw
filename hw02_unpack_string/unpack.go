@@ -2,6 +2,7 @@ package hw02unpackstring
 
 import (
 	"errors"
+	"fmt"
 	"strconv"
 	"strings"
 	"unicode"
@@ -14,6 +15,7 @@ func Unpack(str string) (string, error) {
 	var result strings.Builder
 	strRune := []rune(str)
 
+	fmt.Printf("%T %+v\n", strRune, strRune)
 	if str == "" {
 		return "", nil
 	}
@@ -56,8 +58,9 @@ func Unpack(str string) (string, error) {
 	return result.String(), nil
 }
 
-func repeatSymbol(result *strings.Builder, v rune, prevRune rune) {
-	count, _ := strconv.Atoi(string(v))
+// Повторение руны и запись в результат указанное количество раз -1 (вы читаем ранее добавленную к строке руну)
+func repeatSymbol(result *strings.Builder, quantity rune, prevRune rune) {
+	count, _ := strconv.Atoi(string(quantity))
 	// если ноль то удаляем предыдущий символ
 	if count == 0 {
 		prevResult := []rune(result.String())
