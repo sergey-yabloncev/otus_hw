@@ -1,4 +1,4 @@
-package hw06pipelineexecution
+package hw06_pipeline_execution //nolint:golint,stylecheck
 
 import (
 	"strconv"
@@ -15,7 +15,8 @@ const (
 
 func TestPipeline(t *testing.T) {
 	// Stage generator
-	g := func(_ string, f func(v interface{}) interface{}) Stage {
+	g := func(name string, f func(v interface{}) interface{}) Stage {
+		_ = name
 		return func(in In) Out {
 			out := make(Bi)
 			go func() {
@@ -89,5 +90,59 @@ func TestPipeline(t *testing.T) {
 
 		require.Len(t, result, 0)
 		require.Less(t, int64(elapsed), int64(abortDur)+int64(fault))
+	})
+
+	t.Run("without stages", func(t *testing.T) {
+		in := make(Bi)
+		data := []int{1, 2, 3, 4, 5}
+
+		go func() {
+			for _, v := range data {
+				in <- v
+			}
+			close(in)
+		}()
+
+		result := make([]int, 0, 10)
+		for s := range ExecutePipeline(in, nil) {
+			result = append(result, s.(int))
+		}
+
+		require.Equal(t, data, result)
+	})
+
+	t.Run("without stages - done case", func(t *testing.T) {
+		in := make(Bi)
+		done := make(Bi)
+		data := []int{1, 2, 3, 4, 5}
+
+		go func() {
+			for _, v := range data {
+				in <- v
+			}
+			close(done)
+		}()
+
+		result := make([]int, 0, 10)
+		for s := range ExecutePipeline(in, done) {
+			result = append(result, s.(int))
+		}
+
+		require.Equal(t, data, result)
+	})
+
+	t.Run("nil stage", func(t *testing.T) {
+		in := make(Bi)
+		data := []int{1, 2, 3, 4, 5}
+
+		go func() {
+			for _, v := range data {
+				in <- v
+			}
+			close(in)
+		}()
+
+		// result := make([]int, 0, 10)
+		require.Panics(t, func() { ExecutePipeline(in, nil, nil) })
 	})
 }
