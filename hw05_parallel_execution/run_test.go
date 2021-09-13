@@ -68,3 +68,42 @@ func TestRun(t *testing.T) {
 		require.LessOrEqual(t, int64(elapsedTime), int64(sumTime/2), "tasks were run sequentially?")
 	})
 }
+
+func TestRunConcurrency(t *testing.T) {
+	const workersCount = 5
+	var runTasksCount int32
+	tasks := make([]Task, workersCount)
+	waitCh := make(chan struct{})
+	runErrCh := make(chan error, 1)
+
+	for i := 0; i < len(tasks); i++ {
+		tasks[i] = func() error {
+			atomic.AddInt32(&runTasksCount, 1)
+			<-waitCh
+			return nil
+		}
+	}
+
+	go func() {
+		runErrCh <- Run(tasks, workersCount, 0)
+	}()
+
+	require.Eventually(t, func() bool {
+		return atomic.LoadInt32(&runTasksCount) == workersCount
+	}, time.Second, time.Millisecond)
+
+	close(waitCh)
+
+	var runErr error
+
+	require.Eventually(t, func() bool {
+		select {
+		case runErr = <-runErrCh:
+			return true
+		default:
+			return false
+		}
+	}, time.Second, time.Millisecond)
+
+	require.NoError(t, runErr)
+}
