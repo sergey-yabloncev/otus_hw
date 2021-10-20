@@ -3,9 +3,8 @@ package main
 import (
 	"bufio"
 	"bytes"
-	"fmt"
-	"io"
 	"io/fs"
+	"log"
 	"os"
 	"path/filepath"
 	"strings"
@@ -29,35 +28,42 @@ func ReadDir(dir string) (Environment, error) {
 			return nil
 		}
 
-		environment[d.Name()] = setEnvValue(path)
+		env, errSetEnv := setEnvValue(path)
+		if errSetEnv != nil {
+			return errSetEnv
+		}
+
+		environment[d.Name()] = env
 
 		return nil
 	}
 
 	if err := filepath.WalkDir(dir, walkDirFunc); err != nil {
-		fmt.Errorf("Error read dir: %#v", err)
 		return nil, err
 	}
 
 	return environment, nil
 }
 
-// Create env data
-func setEnvValue(path string) EnvValue {
+// Create env data.
+func setEnvValue(path string) (EnvValue, error) {
 	needRemove := false
 
 	file, err := os.Open(path)
-	defer file.Close()
+	defer func(file *os.File) {
+		err := file.Close()
+		if err != nil {
+			log.Fatal("Cant close file")
+		}
+	}(file)
 
 	if err != nil {
-		fmt.Printf("Error open file: %#v ", err)
-		os.Exit(1)
+		return EnvValue{}, err
 	}
 
 	size, err := getFileSize(*file)
 	if err != nil {
-		fmt.Printf("Error get file size: %#v ", err)
-		os.Exit(1)
+		return EnvValue{}, err
 	}
 
 	if size == 0 {
@@ -65,18 +71,12 @@ func setEnvValue(path string) EnvValue {
 	}
 
 	reader := bufio.NewReader(file)
-
-	value, err := reader.ReadBytes('\n')
-
-	if err != nil && err != io.EOF {
-		fmt.Printf("Error read file %v: %#v ", path, err)
-		os.Exit(1)
-	}
+	value, _ := reader.ReadBytes('\n')
 
 	return EnvValue{
 		sanitize(value),
 		needRemove,
-	}
+	}, nil
 }
 
 func getFileSize(file os.File) (int64, error) {
@@ -89,10 +89,10 @@ func getFileSize(file os.File) (int64, error) {
 	return size.Size(), nil
 }
 
-// sanitize env value
+// sanitize env value.
 func sanitize(envValue []byte) string {
-	envValue = bytes.TrimRight(envValue,"\n")
-	envValue = bytes.TrimRight(envValue," ")
+	envValue = bytes.TrimRight(envValue, "\n")
+	envValue = bytes.TrimRight(envValue, " ")
 	envValue = bytes.ReplaceAll(envValue, []byte{0x00}, []byte{'\n'})
 
 	return string(envValue)
