@@ -12,7 +12,6 @@ func main() {
 	}
 
 	env, err := ReadDir(os.Args[1])
-
 	if err != nil {
 		log.Fatalf("failed read dir with environments: %#v", err.Error())
 		return
