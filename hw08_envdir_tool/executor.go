@@ -18,11 +18,14 @@ func RunCmd(cmd []string, env Environment) (returnCode int) {
 	exCmd.Stderr = os.Stderr
 
 	for envKey, envValue := range env {
+		var strEnv string
 		if envValue.NeedRemove {
-			exCmd.Env = append(exCmd.Env, fmt.Sprintf("%s=", envKey))
+			strEnv = fmt.Sprintf("%s=", envKey)
 		} else {
-			exCmd.Env = append(exCmd.Env, fmt.Sprintf("%s=%s", envKey, envValue.Value))
+			strEnv = fmt.Sprintf("%s=%s", envKey, envValue.Value)
 		}
+
+		exCmd.Env = append(exCmd.Env, strEnv)
 	}
 
 	if err := exCmd.Run(); err != nil {
