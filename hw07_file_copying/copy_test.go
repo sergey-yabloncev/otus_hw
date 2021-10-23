@@ -2,11 +2,9 @@ package main
 
 import (
 	"bytes"
-	"io/ioutil"
+	"github.com/stretchr/testify/require"
 	"os"
 	"testing"
-
-	"github.com/stretchr/testify/require"
 )
 
 type test struct {
@@ -19,12 +17,12 @@ type test struct {
 }
 
 func compare(originalFilePath string, copyFilePath string) (bool, error) {
-	originalFile, err := ioutil.ReadFile(originalFilePath)
+	originalFile, err := os.ReadFile(originalFilePath)
 	if err != nil {
 		return false, err
 	}
 
-	copyFile, err := ioutil.ReadFile(copyFilePath)
+	copyFile, err := os.ReadFile(copyFilePath)
 	if err != nil {
 		return false, err
 	}
