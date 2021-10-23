@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"github.com/stretchr/testify/require"
+	"log"
 	"os"
 	"testing"
 )
@@ -31,7 +32,12 @@ func compare(originalFilePath string, copyFilePath string) (bool, error) {
 }
 
 func TestSuccess(t *testing.T) {
-	defer os.Remove("out.txt")
+	f, err := os.CreateTemp("", "out.txt")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer os.Remove(f.Name()) // clean up
+
 	for _, tst := range [...]test{
 		{
 			from:   "testdata/input.txt",
