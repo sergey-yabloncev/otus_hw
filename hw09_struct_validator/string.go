@@ -8,7 +8,7 @@ import (
 	"strings"
 )
 
-const delimerIn = ","
+const delimiterIn = ","
 
 type stringValidator struct {
 	name      string
@@ -18,22 +18,21 @@ type stringValidator struct {
 }
 
 func stringHandlers(tag, field, value string) []stringValidator {
-	validatorsRaw := strings.Split(tag, delimerMulti)
+	validatorsRaw := strings.Split(tag, delimiterMulti)
 	validators := make([]stringValidator, 0)
 
 	for _, valRaw := range validatorsRaw {
-		val := strings.Split(valRaw, delimer)
+		val := strings.Split(valRaw, delimiter)
 		if len(val) != 2 {
 			log.Printf("invalid value for tag %s\n", tag)
 			continue
 		}
-		sVal := stringValidator{
+		validators = append(validators, stringValidator{
 			name:      val[0],
 			condition: val[1],
 			field:     field,
 			value:     value,
-		}
-		validators = append(validators, sVal)
+		})
 	}
 	return validators
 }
@@ -60,7 +59,7 @@ func (sv stringValidator) validate() *ValidationError {
 			return err
 		}
 	case "in":
-		set := strings.Split(sv.condition, delimerIn)
+		set := strings.Split(sv.condition, delimiterIn)
 		for _, e := range set {
 			if sv.value == e {
 				return nil

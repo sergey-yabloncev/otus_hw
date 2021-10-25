@@ -15,11 +15,11 @@ type intValidator struct {
 }
 
 func intHandlers(tag, field string, value int) []intValidator {
-	validatorsRaw := strings.Split(tag, delimerMulti)
+	validatorsRaw := strings.Split(tag, delimiterMulti)
 	validators := make([]intValidator, 0)
 
 	for _, valRaw := range validatorsRaw {
-		val := strings.Split(valRaw, delimer)
+		val := strings.Split(valRaw, delimiter)
 		if len(val) != 2 {
 			log.Printf("invalid value for tag %s\n", tag)
 			continue

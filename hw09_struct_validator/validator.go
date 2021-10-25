@@ -9,9 +9,9 @@ import (
 )
 
 const (
-	tagName      = "validate"
-	delimer      = ":"
-	delimerMulti = "|"
+	tagName        = "validate"
+	delimiter      = ":"
+	delimiterMulti = "|"
 )
 
 var (
