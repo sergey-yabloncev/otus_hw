@@ -9,13 +9,13 @@ import (
 	"github.com/golang/mock/gomock"
 	"github.com/sergey-yabloncev/otus_hw/hw12_13_14_15_calendar/internal/logger"
 	"github.com/sergey-yabloncev/otus_hw/hw12_13_14_15_calendar/internal/storage"
-	"github.com/sergey-yabloncev/otus_hw/hw12_13_14_15_calendar/internal/storage/memory"
+	memory "github.com/sergey-yabloncev/otus_hw/hw12_13_14_15_calendar/internal/storage/memory"
 	"github.com/stretchr/testify/suite"
 )
 
 type AppSuite struct {
 	suite.Suite
-	logger memorystorage.Logger
+	logger memory.Logger
 }
 
 func (s *AppSuite) SetupSuite() {
@@ -29,7 +29,7 @@ func TestAppSuite(t *testing.T) {
 }
 
 func (s *AppSuite) TestCreateEvent() {
-	memoryStorage := memorystorage.New(s.logger)
+	memoryStorage := memory.New(s.logger)
 	event := storage.Event{}
 	err := faker.FakeData(&event)
 	s.Require().NoError(err)
@@ -42,7 +42,7 @@ func (s *AppSuite) TestCreateEvent() {
 }
 
 func (s *AppSuite) TestGetEvent() {
-	memoryStorage := memorystorage.New(s.logger)
+	memoryStorage := memory.New(s.logger)
 	event := storage.Event{}
 	err := faker.FakeData(&event)
 	s.Require().NoError(err)
@@ -66,7 +66,7 @@ func (s *AppSuite) TestGetEvent() {
 }
 
 func (s *AppSuite) TestDeleteEvent() {
-	memoryStorage := memorystorage.New(s.logger)
+	memoryStorage := memory.New(s.logger)
 	event := storage.Event{}
 	faker.FakeData(&event)
 	memoryStorage.CreateEvent(context.Background(), event)
@@ -78,7 +78,7 @@ func (s *AppSuite) TestDeleteEvent() {
 }
 
 func (s *AppSuite) TestMultithreading() {
-	memoryStorage := memorystorage.New(s.logger)
+	memoryStorage := memory.New(s.logger)
 
 	wg := &sync.WaitGroup{}
 	wg.Add(2)
