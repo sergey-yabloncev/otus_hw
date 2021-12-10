@@ -23,14 +23,21 @@ RUN CGO_ENABLED=0 go build \
 # На выходе тонкий образ
 FROM alpine:3.9
 
-LABEL ORGANIZATION="OTUS Online Education"
-LABEL SERVICE="calendar"
-LABEL MAINTAINERS="student@otus.ru"
+RUN apk add --update make
+COPY --from=migrate/migrate:latest /usr/bin/migrate /usr/local/bin/migrate
+
+ENV CODE_DIR opt/calendar
+WORKDIR ${CODE_DIR}
 
 ENV BIN_FILE "/opt/calendar/calendar-app"
 COPY --from=build ${BIN_FILE} ${BIN_FILE}
 
-ENV CONFIG_FILE /etc/calendar/config.toml
+ENV CONFIG_FILE ./configs/config.toml
+
+COPY ./.env .
 COPY ./configs/config.toml ${CONFIG_FILE}
+COPY ./storage ./storage
+COPY ./migrations ./migrations
+COPY ./Makefile .
 
 CMD ${BIN_FILE} -config ${CONFIG_FILE}
