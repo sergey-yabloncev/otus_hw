@@ -1,5 +1,13 @@
 [logger]
-level = "INFO"
+level = "info"
+path = "./storage/logs/app.log"
 
-# TODO
-# ...
+[server]
+port = ":8080"
+
+[db]
+user = "calendar"
+password = "password"
+host = "postgres"
+port = 5432
+name = "calendar"

@@ -1,0 +1,46 @@
+version: "3.9"
+
+networks:
+  app-network:
+    driver: bridge
+
+services:
+  app:
+    image: app
+    restart: unless-stopped
+    container_name: ${DOCKER_APP_NAME:-project}-app
+    hostname: app-service
+    volumes:
+      - ./storage:/opt/calendar/storage:cached
+    build:
+      context: ./
+      dockerfile: ./build/Dockerfile
+      args:
+        LDFLAGS: ${LDFLAGS}
+    depends_on:
+      - postgres
+    networks:
+      - app-network
+    ports:
+      - "${APP_PORT:-8080}:8080"
+
+  postgres:
+    image: postgres:13-alpine
+    container_name: ${DOCKER_APP_NAME:-project}-postgres
+    restart: unless-stopped
+#    volumes:
+#      - ${DOCKER_POSTGRES_STORAGE:-./database/postgres/data}:/var/lib/postgresql/data:cached
+    ports:
+      - "${DOCKER_MYSQL_PORT:-5432}:5432"
+    environment:
+      POSTGRES_DB: ${DB_DATABASE}
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    networks:
+      - app-network
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ${DB_USERNAME} -d ${DB_DATABASE}" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
